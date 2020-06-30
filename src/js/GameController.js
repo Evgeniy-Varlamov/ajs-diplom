@@ -46,7 +46,7 @@ export default class GameController {
   }
 
   init() {
-    this.loadGame();
+    if (this.loadGame() === false) this.newGame();
     // TODO: add event listeners to gamePlay events
     this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
@@ -73,6 +73,7 @@ export default class GameController {
   }
 
   saveGame() {
+    if (this.lockBoard) return;
     const game = {
       userTeam: this.userTeam,
       enemyTeam: this.enemyTeam,
@@ -91,8 +92,17 @@ export default class GameController {
   }
 
   loadGame() {
+    if (!localStorage.state) {
+      if (!this.lockBoard) GamePlay.showMessage('Сохраненная игра не найдена');
+      return false;
+    }
     try {
       const loadGameState = this.stateService.load();
+      this.totalPoints = loadGameState.totalPoints;
+      if (!loadGameState.game) {
+        if (!this.lockBoard) GamePlay.showMessage('Сохраненная игра не найдена');
+        return false;
+      }
       if (loadGameState.game) {
         this.userTeam = loadGameState.game.userTeam;
         this.userTeam = GameStateService.createTeam(this.userTeam);
@@ -106,17 +116,12 @@ export default class GameController {
         this.turn = 'user';
         this.gamePlay.drawUi(this.currentTheme);
         this.gamePlay.redrawPositions(this.userTeam.concat(this.enemyTeam));
-      } else {
-        GamePlay.showMessage('Нет сохраненной игры');
-        this.newGame();
+        this.lockBoard = false;
       }
-      this.totalPoints = loadGameState.totalPoints;
       document.getElementById('game-points').textContent = this.points;
       document.getElementById('total-points').textContent = this.totalPoints;
-      this.lockBoard = false;
     } catch (e) {
       GamePlay.showMessage('Не удалось загрузить игру');
-      this.newGame();
     }
   }
 
