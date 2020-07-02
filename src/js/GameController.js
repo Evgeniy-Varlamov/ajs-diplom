@@ -262,7 +262,10 @@ export default class GameController {
     const damage = characterAttacking.character.toDamage(characterAttacked.character);
     this.gamePlay.showDamage(characterAttacked.position, damage).then(() => {
       const result = characterAttacked.character.takeDamage(damage);
-      if (!result) teamAttacked.splice(teamAttacked.indexOf(characterAttacked), 1);
+      if (!result) {
+        teamAttacked.splice(teamAttacked.indexOf(characterAttacked), 1);
+        this.gamePlay.deselectCell(characterAttacked.position);
+      }
       this.gamePlay.redrawPositions(this.userTeam.concat(this.enemyTeam));
       callback(teamAttacked.length);
     });
