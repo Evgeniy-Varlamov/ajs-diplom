@@ -18,7 +18,7 @@ test('Проверка создания объекта дочернего кла
     level: 1,
     attack: 0,
     defence: 0,
-    health: 100,
+    health: 50,
     type: 'subsidiary',
     distanceMove: 0,
     distanceAttack: 0,
